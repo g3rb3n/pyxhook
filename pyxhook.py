@@ -102,7 +102,7 @@ class HookManager(threading.Thread):
         self.MouseAllButtonsDown = self.lambda_function
         self.MouseAllButtonsUp = self.lambda_function
         self.MouseMovement = self.lambda_function
-        
+
         self.KeyDownParameters = {}
         self.KeyUpParameters = {}
         self.MouseAllButtonsDownParameters = {}
@@ -175,7 +175,7 @@ class HookManager(threading.Thread):
 
     def processhookevents(self,action_type,action_parameters,events):
         # In order to avoid duplicate code, i wrote a function that takes the
-        # input value of the action function and, depending on the initialization, 
+        # input value of the action function and, depending on the initialization,
         # launches it or only with the event or passes the parameter
         if self.parameters:
             action_type(events,action_parameters)
@@ -305,12 +305,12 @@ class HookManager(threading.Thread):
     def lookup_keysym(self, keysym):
         for name in dir(XK):
             if name.startswith("XK_") and getattr(XK, name) == keysym:
-                return name.lstrip("XK_")
+                return name[3:]
         return "[{}]".format(keysym)
 
     def asciivalue(self, keysym):
-        asciinum = XK.string_to_keysym(self.lookup_keysym(keysym))
-        return asciinum % 256
+        number = XK.string_to_keysym(self.lookup_keysym(keysym))
+        return number if number < 256 else 0
 
     def makekeyhookevent(self, keysym, event):
         storewm = self.xwindowinfo()
