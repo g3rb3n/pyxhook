@@ -90,6 +90,7 @@ class HookManager(threading.Thread):
         )))
         self.logrelease = re.compile('.*')
         self.isspace = re.compile('^space$')
+        self.lookuptable = self.create_lookup_dict()
         # Choose which type of function use
         self.parameters=parameters
         if parameters:
@@ -114,6 +115,11 @@ class HookManager(threading.Thread):
         # Hook to our display.
         self.local_dpy = display.Display()
         self.record_dpy = display.Display()
+
+    def create_lookup_dict(self):
+        return {getattr(XK, name): name[3:] \
+            for name in dir(XK) \
+            if name.startswith("XK_")}
 
     def run(self):
         # Check if the extension is present
@@ -303,10 +309,9 @@ class HookManager(threading.Thread):
     # need the following because XK.keysym_to_string() only does printable
     # chars rather than being the correct inverse of XK.string_to_keysym()
     def lookup_keysym(self, keysym):
-        for name in dir(XK):
-            if name.startswith("XK_") and getattr(XK, name) == keysym:
-                return name[3:]
-        return "[{}]".format(keysym)
+        return self.lookuptable[keysym] \
+            if keysym in self.lookuptable \
+            else "[{}]".format(keysym)
 
     def asciivalue(self, keysym):
         number = XK.string_to_keysym(self.lookup_keysym(keysym))
